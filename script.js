@@ -1,47 +1,49 @@
-import ollama from "ollama";
+// import ollama from "ollama";
 
-async function runChat() {
-  try {
-    const response = await ollama.chat({
-      model: "llama3.2:1b",
-      messages: [{ role: 'user', content: "Write product descriptions" }]
-    });
+// async function runChat() {
+//   try {
+//     const response = await ollama.chat({
+//       model: "llama3.2:1b",
+//       messages: [{ role: 'user', content: "Write product descriptions" }]
+//     });
 
-    console.log("Chatbot Response:", response.message.content);
-  } catch (error) {
-    console.error("Error occurred:", error.message);
-  }
-}
+//     console.log("Chatbot Response:", response.message.content);
+//   } catch (error) {
+//     console.error("Error occurred:", error.message);
+//   }
+// }
 
-runChat();
+// runChat();
 
 
 // ------------------------------------------------------------------
 //Stage 2:
 // ------------------------------------------------------------------
 
-const fs = require('fs');
-const { default: ollama } = require("ollama"); 
+import fs from 'fs';
+import ollama from "ollama";
 
-async function runChat() {
-  try {
-    const inputFilePath = "q.txt"
-    const inputContent = fs.readFileSync(inputFilePath, "utf-8")
+async function processChat() {
+    try {
+        const questionFile = "q.txt";
+        const userMessage = fs.readFileSync(questionFile, "utf-8");
 
-    const response = await ollama.chat({
-      model: "llama3.2:1b",
-      messages: [{ role: "user", content: inputContent }]
-    })
+        const aiResponse = await ollama.chat({
+            model: "llama3.2:1b",
+            messages: [{ role: "user", content: userMessage }],
+        });
 
-    const chatbotResponse = response.message.content
+        const responseMessage = aiResponse.message.content;
 
-    const outputFilePath = "a.txt"
-    fs.writeFileSync(outputFilePath, chatbotResponse, "utf-8")
+        const answerFile = "a.txt";
+        fs.writeFileSync(answerFile, responseMessage, "utf-8");
 
-    console.log("Chatbot response has been saved to a.txt.")
-  } catch (error) {
-    console.error("Error occurred:", error.message)
-  }
+        console.log("The AI's response has been saved to a.txt.");
+    } catch (error) {
+        console.error("Error encountered:", error.message);
+    }
 }
 
-runChat()
+processChat();
+
+
