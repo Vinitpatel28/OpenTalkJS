@@ -148,7 +148,7 @@ function main() {
               process.exit(1);
             }
 
-            const answerFileName = selectedFile.replace("q", "a");
+            const answerFileName = selectedFile.replace("Q", "A");
             const answerFilePath = path.join(answersDirPath, answerFileName);
 
             writeToFile(answerFilePath, ollamaResponse.message.content, (success, err) => {
