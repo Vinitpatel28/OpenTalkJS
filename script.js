@@ -23,27 +23,28 @@
 import fs from 'fs';
 import ollama from "ollama";
 
-async function processChat() {
+async function ask_llm(q) {
     try {
-        const questionFile = "q.txt";
-        const userMessage = fs.readFileSync(questionFile, "utf-8");
-
-        const aiResponse = await ollama.chat({
-            model: "llama3.2:1b",
-            messages: [{ role: "user", content: userMessage }],
+        const response = await ollama.chat({
+            model: "llama3.2:1b", 
+            messages: [{ role: "user", content: q }],
         });
 
-        const responseMessage = aiResponse.message.content;
+        const a = response.message.content;
 
-        const answerFile = "a.txt";
-        fs.writeFileSync(answerFile, responseMessage, "utf-8");
-
-        console.log("The AI's response has been saved to a.txt.");
-    } catch (error) {
-        console.error("Error encountered:", error.message);
+        fs.writeFile('a.txt', a, (err) => {
+            if (err) {
+                throw err;
+            }
+            console.log("The AI's response has been saved to a.txt.");
+        });
+    } catch (err) {
+        console.error("Error:", err);
     }
 }
 
-processChat();
+const question = fs.readFileSync("q.txt", 'utf8');
+ask_llm(question);
+
 
 
