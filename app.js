@@ -1,58 +1,27 @@
-const ollama = require('ollama');
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import ollama from 'ollama';
 
-async function askOllama(question) {
-  try {
+let q;
+let n = 5;
+
+async function LLM_query(q, i) {
     const response = await ollama.chat({
-      model: 'llama3.2:1b',
-      messages: [{ role: 'user', content: question }],
+        model: "llama3.2:1b",
+        messages: [{ role: "user", content: q }],
     });
-    return response.message.content;
-  } catch (error) {
-    console.error('Error:', error);
-    return null;
-  }
-}
 
-async function processBatchQuestions() {
-  const questionsDir = './questions';
-  const answersDir = './answers';
-
-  if (!fs.existsSync(answersDir)) {
-    fs.mkdirSync(answersDir);
-  }
-
-  try {
-    const files = fs.readdirSync(questionsDir)
-      .filter(file => file.startsWith('Q') && file.endsWith('.txt'))
-      .sort();
-
-    for (const file of files) {
-      const match = file.match(/q(\d+)\.txt/);
-      if (match) {
-        const number = match[1];
-        
-        const question = fs.readFileSync(path.join(questionsDir, file), 'utf8');
-        
-        console.log(`Processing question ${number}...`);
-        
-        const answer = await askOllama(question);
-        
-        if (answer) {
-          const answerFile = `a${number}.txt`;
-          fs.writeFileSync(path.join(answersDir, answerFile), answer);
-          console.log(`Answer ${number} has been written to ${answerFile}`);
+    let a = response.message.content;
+    const outputFilePath = `./answers/a${i}.txt`;  
+    fs.writeFile(outputFilePath, a, (err) => {
+        if (err) {
+            throw err;
         } else {
-          console.log(`Failed to get answer for question ${number}`);
-        }
-      }
-    }
-    
-    console.log('Batch processing completed');
-  } catch (error) {
-    console.error('Batch processing failed:', error);
-  }
+            console.log(`Answer ${i} is given`);        }
+    });
 }
 
-processBatchQuestions();
+for (let i = 1; i <= n; i++) {
+    const inputFilePath = `./questions/q${i}.txt`;  
+    q = fs.readFileSync(inputFilePath, 'utf8');
+    LLM_query(q, i);
+}
